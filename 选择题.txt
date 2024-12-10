@@ -41,7 +41,7 @@ A. <input type="text" rows="4" cols="30" name="txtintro">
 B. <textarea rows="4" cols="30" name="txtintro"></textarea>
 C. <textarea rows="4" cols="30" name="txtintro">
 D. <textarea rows="30" cols="4" name="txtintro"></textarea>
-答案：C
+答案：B
 
 6. 下列属性中用于设置文本框显示宽度的属性是()
 A. size
