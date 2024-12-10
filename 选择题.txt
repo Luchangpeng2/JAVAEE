@@ -546,7 +546,7 @@ A. <c:url>
 B. <c:redirect>
 C. <c:include>
 D. <c:import>
-答案：C
+答案：D
 
 ---
 
