@@ -74,28 +74,71 @@
 
         pre {
             background-color: #f6f8fa;
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
             margin: 15px 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border: 1px solid #e1e4e8;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-width: 100%;
+            white-space: pre;
+            overflow-x: auto;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            -o-tab-size: 4;
+            line-height: 1.6;
         }
 
         code {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Consolas', 'Monaco', 'Courier New', Courier, monospace;
             font-size: 0.9rem;
-            line-height: 1.5;
             color: #24292e;
             display: block;
             width: 100%;
         }
 
-        code .comment {
+        /* 代码高亮样式 */
+        .keyword {
+            color: #d73a49;
+        }
+
+        .string {
+            color: #032f62;
+        }
+
+        .comment {
             color: #6a737d;
             font-style: italic;
+        }
+
+        /* 代码块的滚动条样式 */
+        pre::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        pre::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        pre::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* 移动设备适配 */
+        @media (max-width: 480px) {
+            pre {
+                padding: 15px;
+                font-size: 0.85rem;
+            }
+            
+            code {
+                font-size: 0.85rem;
+            }
         }
 
         strong {
@@ -108,16 +151,6 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-top: 20px;
-        }
-
-        @media (max-width: 480px) {
-            pre {
-                padding: 10px;
-            }
-            
-            code {
-                font-size: 0.85rem;
-            }
         }
     </style>
 </head>
@@ -260,6 +293,88 @@ public class GoodsServlet extends HttpServlet {
             <li>查询所有商品信息</li>
             <li>将查询结果转发到 JSP 页面显示</li>
         </ul>
+
+        <h2>JDBC 基本增删改查操作</h2>
+        <p>以下是使用 JDBC 进行基本的增删改查（CRUD）操作的示例代码：</p>
+        
+        <pre><code>// 1. 数据库连接代码
+try {
+    Class.forName("com.mysql.jdbc.Driver");
+    Connection conn = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/dbname",
+            "username",
+            "password"
+    );
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+// 2. 插入数据（Create）
+String insertSQL = "INSERT INTO users (name, age) VALUES (?, ?)";
+PreparedStatement pstmt = conn.prepareStatement(insertSQL);
+pstmt.setString(1, "张三");
+pstmt.setInt(2, 25);
+int rows = pstmt.executeUpdate();
+
+// 3. 查询数据（Read）
+String querySQL = "SELECT * FROM users WHERE age > ?";
+PreparedStatement pstmt = conn.prepareStatement(querySQL);
+pstmt.setInt(1, 20);
+ResultSet rs = pstmt.executeQuery();
+while (rs.next()) {
+    String name = rs.getString("name");
+    int age = rs.getInt("age");
+    System.out.println("姓名：" + name + ", 年龄：" + age);
+}
+
+// 4. 更新数据（Update）
+String updateSQL = "UPDATE users SET age = ? WHERE name = ?";
+PreparedStatement pstmt = conn.prepareStatement(updateSQL);
+pstmt.setInt(1, 26);
+pstmt.setString(2, "张三");
+int rows = pstmt.executeUpdate();
+
+// 5. 删除数据（Delete）
+String deleteSQL = "DELETE FROM users WHERE name = ?";
+PreparedStatement pstmt = conn.prepareStatement(deleteSQL);
+pstmt.setString(1, "张三");
+int rows = pstmt.executeUpdate();
+
+// 6. 关闭资源
+finally {
+    if (rs != null) {
+        rs.close();
+    }
+    if (pstmt != null) {
+        pstmt.close();
+    }
+    if (conn != null) {
+        conn.close();
+    }
+}</code></pre>
+
+        <p>JDBC 操作的重要注意事项：</p>
+        <ul>
+            <li>始终使用 PreparedStatement 而不是 Statement，可以防止 SQL 注入</li>
+            <li>查询操作使用 executeQuery()，返回 ResultSet</li>
+            <li>增删改操作使用 executeUpdate()，返回受影响的行数</li>
+            <li>必须在 finally 块中关闭所有资源，避免资源泄露</li>
+            <li>建议使用 try-with-resources 语句自动关闭资源</li>
+        </ul>
+
+        <p>使用 try-with-resources 的示例：</p>
+        <pre><code>try (
+    Connection conn = DriverManager.getConnection(url, user, password);
+    PreparedStatement pstmt = conn.prepareStatement(sql);
+    ResultSet rs = pstmt.executeQuery()
+) {
+    while (rs.next()) {
+        // 处理结果集
+    }
+} catch (SQLException e) {
+    e.printStackTrace();
+}</code></pre>
+
     </div>
 </body>
 </html> 
