@@ -168,6 +168,98 @@ public class Person {
         this.age = age;
     }
 }</code></pre>
+
+        <h2>JDBC 数据库操作示例（Servlet）</h2>
+        <p>以下是一个完整的 Servlet 示例，展示了如何使用 JDBC 进行数据库操作：</p>
+        <pre><code>package pack01;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import pack01.entity.Goods;
+
+@WebServlet("/goodsServlet")
+public class GoodsServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    // 处理GET请求
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        // 查询商品数据并将结果存入ArrayList<Goods>，用于页面展示
+        ArrayList<Goods> allGoods = null;
+
+        // 关键步骤 1: 加载数据库驱动
+        try {
+            Class.forName("com.mysql.jdbc.Driver");  // 加载MySQL数据库JDBC驱动
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            // 关键步骤 2: 连接数据库
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?characterEncoding=utf-8", "root", "root");
+
+            // 关键步骤 3: 执行插入商品操作
+            PreparedStatement ps = con.prepareStatement("insert into goods values(null,?,?)");
+            request.setCharacterEncoding("utf-8");  // 设置请求编码
+            ps.setString(1, request.getParameter("gname"));  // 获取商品名称
+            ps.setString(2, request.getParameter("gprice"));  // 获取商品价格
+            ps.executeUpdate();  // 执行插入操作
+
+            // 关键步骤 4: 执行查询操作获取所有商品
+            ps = con.prepareStatement("select * from goods");
+            ResultSet rs = ps.executeQuery();  // 执行查询操作
+
+            // 关键步骤 5: 将查询结果封装到ArrayList<Goods>中
+            allGoods = new ArrayList<Goods>();
+            while (rs.next()) {
+                Goods g = new Goods();
+                g.setId(rs.getInt(1));  // 获取商品ID
+                g.setGname(rs.getString(2));  // 获取商品名称
+                g.setGprice(rs.getDouble(3));  // 获取商品价格
+                allGoods.add(g);  // 将商品信息加入到列表中
+            }
+
+            // 关闭数据库资源
+            rs.close();
+            ps.close();
+            con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // 关键步骤 6: 将商品数据存入request对象，供页面展示
+        request.setAttribute("allGoods", allGoods);
+
+        // 关键步骤 7: 转发请求到showAllGoods.jsp页面
+        RequestDispatcher dis = request.getRequestDispatcher("showAllGoods.jsp");
+        dis.forward(request, response);
+    }
+
+    // 处理POST请求，实际上会调用doGet方法
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+}</code></pre>
+
+        <p>这个示例展示了一个完整的 Servlet 类，实现了以下功能：</p>
+        <ul>
+            <li>连接 MySQL 数据库</li>
+            <li>执行插入操作</li>
+            <li>查询所有商品信息</li>
+            <li>将查询结果转发到 JSP 页面显示</li>
+        </ul>
     </div>
 </body>
 </html> 
